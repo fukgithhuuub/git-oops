@@ -28,8 +28,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   const fuse = new Fuse(data, fuseOptions);
 
+
   let currentCategory = null;
   let currentSearchTerm = '';
+
+  // AI State variables
+  let aiModeEnabled = false;
+  let aiModelLoading = false;
+  let aiModelReady = false;
+  let featureExtractor = null;
+  let scenarioEmbeddings = [];
+
 
   // Initialization
   initialize();
@@ -84,6 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     });
 
+
     clearFilterBtn.addEventListener('click', () => {
       currentCategory = null;
       currentSearchTerm = '';
@@ -92,6 +102,73 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateURL();
       renderResults();
     });
+
+    // AI Toggle Event Listener
+    const aiToggle = document.getElementById('ai-toggle');
+    const aiStatus = document.getElementById('ai-status');
+
+    if (aiToggle) {
+      aiToggle.addEventListener('change', async (e) => {
+        aiModeEnabled = e.target.checked;
+        if (aiModeEnabled && !aiModelReady && !aiModelLoading) {
+          await initAI();
+        } else {
+          renderResults();
+        }
+      });
+    }
+
+  }
+
+
+  async function initAI() {
+    if (aiModelReady || aiModelLoading) return;
+
+    aiModelLoading = true;
+    const aiStatus = document.getElementById('ai-status');
+    if (aiStatus) aiStatus.textContent = "(Loading model...)";
+
+    try {
+      // Configure transformers.js to use browser cache and no local path
+      window.transformers.env.allowLocalModels = false;
+      window.transformers.env.useBrowserCache = true;
+
+      // Load feature extraction pipeline
+      featureExtractor = await window.transformers.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+
+      if (aiStatus) aiStatus.textContent = "(Generating embeddings...)";
+
+      // Pre-compute embeddings for all scenarios
+      await generateScenarioEmbeddings();
+
+      aiModelReady = true;
+      if (aiStatus) aiStatus.textContent = "(Ready)";
+      setTimeout(() => {
+        if (aiStatus) aiStatus.textContent = "";
+      }, 3000);
+
+      // Trigger a re-render now that AI is ready
+      renderResults();
+    } catch (err) {
+      console.error("Error initializing AI model:", err);
+      if (aiStatus) aiStatus.textContent = "(Error loading model)";
+      document.getElementById('ai-toggle').checked = false;
+      aiModeEnabled = false;
+    } finally {
+      aiModelLoading = false;
+    }
+  }
+
+  async function generateScenarioEmbeddings() {
+    scenarioEmbeddings = [];
+    for (const scenario of data) {
+      const textToEmbed = `${scenario.title} ${scenario.tags.join(' ')} ${scenario.description}`;
+      const output = await featureExtractor(textToEmbed, { pooling: 'mean', normalize: true });
+      scenarioEmbeddings.push({
+        id: scenario.id,
+        embedding: Array.from(output.data)
+      });
+    }
   }
 
   function updateCategoryUI(category) {
@@ -122,13 +199,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.history.replaceState({}, '', url);
   }
 
-  function getFilteredResults() {
+
+  function cosineSimilarity(vecA, vecB) {
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
+    for (let i = 0; i < vecA.length; i++) {
+      dotProduct += vecA[i] * vecB[i];
+      normA += vecA[i] * vecA[i];
+      normB += vecB[i] * vecB[i];
+    }
+    if (normA === 0 || normB === 0) return 0;
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+  }
+
+  async function getFilteredResults() {
     let results = data;
 
     // Apply search filter
     if (currentSearchTerm.trim() !== '') {
-      const fuseResults = fuse.search(currentSearchTerm);
-      results = fuseResults.map(result => result.item);
+      if (aiModeEnabled && aiModelReady && featureExtractor) {
+        // AI Semantic Search
+        try {
+          const queryEmbeddingOutput = await featureExtractor(currentSearchTerm, { pooling: 'mean', normalize: true });
+          const queryEmbedding = Array.from(queryEmbeddingOutput.data);
+
+          const scoredResults = results.map(scenario => {
+            const scenarioEmbObj = scenarioEmbeddings.find(se => se.id === scenario.id);
+            if (!scenarioEmbObj) return { scenario, score: -1 };
+            const score = cosineSimilarity(queryEmbedding, scenarioEmbObj.embedding);
+            return { scenario, score };
+          });
+
+          scoredResults.sort((a, b) => b.score - a.score);
+
+          // Filter to top relevance threshold
+          const threshold = 0.3; // Minimum similarity threshold
+          results = scoredResults
+            .filter(item => item.score > threshold)
+            .map(item => item.scenario);
+
+          // If no results above threshold, show top 3 anyway
+          if (results.length === 0) {
+              results = scoredResults.slice(0, 3).map(item => item.scenario);
+          }
+        } catch (e) {
+            console.error("AI Search Failed, falling back to keyword search", e);
+            const fuseResults = fuse.search(currentSearchTerm);
+            results = fuseResults.map(result => result.item);
+        }
+      } else {
+        // Fallback to Fuse Keyword Search
+        const fuseResults = fuse.search(currentSearchTerm);
+        results = fuseResults.map(result => result.item);
+      }
     }
 
     // Apply category filter
@@ -139,8 +263,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     return results;
   }
 
-  function renderResults() {
-    const results = getFilteredResults();
+  async function renderResults() {
+    const results = await getFilteredResults();
 
     // Update count and clear filter button visibility
     resultsCount.textContent = `Showing ${results.length} scenario${results.length !== 1 ? 's' : ''}`;
