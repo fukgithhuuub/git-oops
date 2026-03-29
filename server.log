@@ -1,0 +1,15 @@
+127.0.0.1 - - [29/Mar/2026 17:26:30] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:26:30] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:26:30] "GET /css/main.css HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:26:30] "GET /js/data.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:26:31] "GET /data/scenarios.json HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:28] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:28] "GET /css/main.css HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:28] "GET /js/data.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:28] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:28] "GET /data/scenarios.json HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:55] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:55] "GET /js/data.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:55] "GET /css/main.css HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:55] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Mar/2026 17:27:55] "GET /data/scenarios.json HTTP/1.1" 200 -
