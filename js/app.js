@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dangerLabel = getDangerLabel(scenario.danger);
 
     return `
-      <a href="scenario.html?id=${scenario.id}" class="scenario-card">
+      <a href="scenario.html?id=${scenario.id}" id="scenario-${scenario.id}" class="scenario-card">
         <div class="card-header">
           <h3 class="card-title">${escapeHTML(scenario.title)}</h3>
           <div class="card-badges">
