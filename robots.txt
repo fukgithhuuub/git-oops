@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gitoops.github.io/sitemap.xml

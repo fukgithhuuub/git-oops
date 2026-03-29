@@ -1,0 +1,2462 @@
+[
+  {
+    "id": "undo-last-commit",
+    "title": "Undo Last Commit",
+    "category": "commits",
+    "tags": [
+      "undo",
+      "reset",
+      "last commit",
+      "mistake",
+      "oops"
+    ],
+    "description": "You made a commit you want to take back. Maybe the message was wrong, or you committed the wrong files.",
+    "danger": "caution",
+    "steps": [
+      {
+        "condition": "Keep your changes (just un-commit)",
+        "commands": [
+          "git reset --soft HEAD~1"
+        ],
+        "explanation": "Moves HEAD back one commit. Your files are unchanged and staged, ready to re-commit."
+      },
+      {
+        "condition": "Discard your changes entirely",
+        "commands": [
+          "git reset --hard HEAD~1"
+        ],
+        "explanation": "Moves HEAD back and DELETES the changes.",
+        "warning": "This permanently deletes your changes. There is no undo."
+      }
+    ],
+    "related": [
+      "amend-last-commit",
+      "undo-multiple-commits"
+    ]
+  },
+  {
+    "id": "amend-last-commit",
+    "title": "Amend the Last Commit Message",
+    "category": "commits",
+    "tags": [
+      "amend",
+      "message",
+      "typo",
+      "commit message"
+    ],
+    "description": "You made a typo in your last commit message or need to change it.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git commit --amend -m \"New commit message\""
+        ],
+        "explanation": "Replaces the last commit with a new one that has the updated message. Do not do this if you have already pushed!"
+      }
+    ],
+    "related": [
+      "undo-last-commit"
+    ]
+  },
+  {
+    "id": "add-forgotten-file-to-commit",
+    "title": "Add a Forgotten File to the Last Commit",
+    "category": "commits",
+    "tags": [
+      "forget",
+      "forgot",
+      "add",
+      "file",
+      "amend"
+    ],
+    "description": "You made a commit but forgot to include a file.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git add <file>",
+          "git commit --amend --no-edit"
+        ],
+        "explanation": "Adds the forgotten file to the staging area, then amends the previous commit without changing its message. Do not do this if you already pushed."
+      }
+    ],
+    "related": [
+      "amend-last-commit",
+      "undo-last-commit"
+    ]
+  },
+  {
+    "id": "undo-multiple-commits",
+    "title": "Undo Multiple Commits",
+    "category": "commits",
+    "tags": [
+      "undo",
+      "multiple",
+      "reset",
+      "commits"
+    ],
+    "description": "You want to undo the last N commits.",
+    "danger": "caution",
+    "steps": [
+      {
+        "condition": "Keep your changes",
+        "commands": [
+          "git reset --soft HEAD~<N>"
+        ],
+        "explanation": "Moves HEAD back N commits. Your files are unchanged and staged."
+      },
+      {
+        "condition": "Discard changes entirely",
+        "commands": [
+          "git reset --hard HEAD~<N>"
+        ],
+        "explanation": "Moves HEAD back N commits and DELETES all changes.",
+        "warning": "This permanently deletes your changes. There is no undo."
+      }
+    ],
+    "related": [
+      "undo-last-commit"
+    ]
+  },
+  {
+    "id": "committed-to-wrong-branch",
+    "title": "Committed to Wrong Branch",
+    "category": "commits",
+    "tags": [
+      "wrong",
+      "branch",
+      "move",
+      "commit",
+      "cherry-pick"
+    ],
+    "description": "You accidentally committed your changes to the wrong branch (e.g. main instead of a feature branch).",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git branch <new-branch-name>",
+          "git reset HEAD~1 --hard",
+          "git checkout <new-branch-name>"
+        ],
+        "explanation": "Creates a new branch at your current commit. Then moves the current branch back one commit (removing it from the wrong branch). Finally, checks out the new branch with your work intact."
+      }
+    ],
+    "related": [
+      "switch-branches-uncommitted"
+    ]
+  },
+  {
+    "id": "committed-sensitive-data",
+    "title": "Committed Sensitive Data",
+    "category": "commits",
+    "tags": [
+      "sensitive",
+      "password",
+      "api",
+      "key",
+      "secret",
+      "remove"
+    ],
+    "description": "You accidentally committed a file containing a password, API key, or other sensitive information.",
+    "danger": "destructive",
+    "steps": [
+      {
+        "condition": "It was the very last commit",
+        "commands": [
+          "git rm --cached <file>",
+          "git commit --amend --no-edit"
+        ],
+        "explanation": "Removes the file from git tracking, then amends the last commit to exclude it."
+      },
+      {
+        "condition": "It is deep in your history",
+        "commands": [
+          "git filter-repo --invert-paths --path <file>"
+        ],
+        "explanation": "Uses git filter-repo (requires installation) to completely rewrite history without the file.",
+        "warning": "This is extremely destructive. You will rewrite history for the entire repo. Anyone else working on the project will need to re-clone."
+      }
+    ],
+    "related": [
+      "remove-file-history"
+    ]
+  },
+  {
+    "id": "delete-local-branch",
+    "title": "Delete a Local Branch",
+    "category": "branches",
+    "tags": [
+      "delete",
+      "remove",
+      "branch",
+      "local"
+    ],
+    "description": "You want to delete a local branch that you no longer need.",
+    "danger": "safe",
+    "steps": [
+      {
+        "condition": "The branch has been merged",
+        "commands": [
+          "git branch -d <branch-name>"
+        ],
+        "explanation": "Safely deletes the branch only if it has already been merged into your current branch."
+      },
+      {
+        "condition": "Force delete (unmerged changes)",
+        "commands": [
+          "git branch -D <branch-name>"
+        ],
+        "explanation": "Forces the deletion of the branch even if it has unmerged changes.",
+        "warning": "You will lose any unmerged commits on this branch."
+      }
+    ],
+    "related": [
+      "delete-remote-branch",
+      "recover-deleted-branch"
+    ]
+  },
+  {
+    "id": "delete-remote-branch",
+    "title": "Delete a Remote Branch",
+    "category": "branches",
+    "tags": [
+      "delete",
+      "remove",
+      "branch",
+      "remote",
+      "github"
+    ],
+    "description": "You want to delete a branch on the remote server (e.g. GitHub).",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git push origin --delete <branch-name>"
+        ],
+        "explanation": "Tells the remote server to delete the specified branch."
+      }
+    ],
+    "related": [
+      "delete-local-branch"
+    ]
+  },
+  {
+    "id": "rename-branch",
+    "title": "Rename a Branch",
+    "category": "branches",
+    "tags": [
+      "rename",
+      "branch",
+      "name",
+      "change"
+    ],
+    "description": "You want to rename your current local branch.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git branch -m <new-name>"
+        ],
+        "explanation": "Renames the branch you are currently on."
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": "recover-deleted-branch",
+    "title": "Recover a Deleted Branch",
+    "category": "branches",
+    "tags": [
+      "recover",
+      "restore",
+      "undelete",
+      "branch",
+      "reflog"
+    ],
+    "description": "You accidentally deleted a branch and need it back.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reflog",
+          "git branch <branch-name> <commit-hash>"
+        ],
+        "explanation": "Use reflog to find the commit hash where the branch was before deletion. Then create a new branch pointing to that hash."
+      }
+    ],
+    "related": [
+      "delete-local-branch"
+    ]
+  },
+  {
+    "id": "switch-branches-uncommitted",
+    "title": "Switch Branches with Uncommitted Changes",
+    "category": "branches",
+    "tags": [
+      "switch",
+      "checkout",
+      "uncommitted",
+      "changes",
+      "stash"
+    ],
+    "description": "You want to switch branches but Git won't let you because you have uncommitted changes.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git stash",
+          "git checkout <branch-name>",
+          "git stash pop"
+        ],
+        "explanation": "Stashes your changes temporarily, switches branches, and then applies your stashed changes to the new branch."
+      }
+    ],
+    "related": [
+      "stash-uncommitted-changes"
+    ]
+  },
+  {
+    "id": "create-branch-from-old-commit",
+    "title": "Create a Branch from an Old Commit",
+    "category": "branches",
+    "tags": [
+      "create",
+      "branch",
+      "old",
+      "commit",
+      "past"
+    ],
+    "description": "You want to create a new branch starting from a specific point in the past.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git checkout -b <new-branch-name> <commit-hash>"
+        ],
+        "explanation": "Creates a new branch and checks it out, starting at the specified commit."
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": "undo-a-push",
+    "title": "Undo a Push (Rewrite History)",
+    "category": "remote",
+    "tags": [
+      "undo",
+      "push",
+      "remote",
+      "revert",
+      "history"
+    ],
+    "description": "You pushed commits to the remote that you want to undo.",
+    "danger": "destructive",
+    "steps": [
+      {
+        "condition": "You haven't shared the branch with anyone else",
+        "commands": [
+          "git reset --hard HEAD~1",
+          "git push origin <branch> --force"
+        ],
+        "explanation": "Resets your local branch back one commit and force pushes to overwrite the remote.",
+        "warning": "Never do this on a shared branch (like main)! It will ruin history for other developers."
+      },
+      {
+        "condition": "It's a shared branch",
+        "commands": [
+          "git revert <commit-hash>",
+          "git push"
+        ],
+        "explanation": "Creates a NEW commit that does the exact opposite of the bad commit, keeping history intact for everyone."
+      }
+    ],
+    "related": [
+      "force-push-safely"
+    ]
+  },
+  {
+    "id": "force-push-safely",
+    "title": "Force Push Safely",
+    "category": "remote",
+    "tags": [
+      "force",
+      "push",
+      "safe",
+      "lease"
+    ],
+    "description": "You need to force push (e.g. after a rebase), but want to make sure you don't overwrite a teammate's work.",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git push --force-with-lease"
+        ],
+        "explanation": "Forces the push, but will abort if the remote branch has new commits that you haven't fetched yet. Much safer than --force."
+      }
+    ],
+    "related": [
+      "undo-a-push"
+    ]
+  },
+  {
+    "id": "pull-with-local-changes",
+    "title": "Pull When You Have Local Changes",
+    "category": "remote",
+    "tags": [
+      "pull",
+      "local",
+      "changes",
+      "conflict",
+      "stash"
+    ],
+    "description": "You want to pull new changes from remote, but you have uncommitted changes that might conflict.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git stash",
+          "git pull",
+          "git stash pop"
+        ],
+        "explanation": "Hides your changes, pulls the new code, then puts your changes back on top."
+      }
+    ],
+    "related": [
+      "stash-uncommitted-changes",
+      "resolve-merge-conflict"
+    ]
+  },
+  {
+    "id": "fix-rejected-push",
+    "title": "Fix a Rejected Push",
+    "category": "remote",
+    "tags": [
+      "rejected",
+      "push",
+      "fetch",
+      "pull",
+      "behind"
+    ],
+    "description": "Git says 'Updates were rejected because the remote contains work that you do not have locally.'",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git pull --rebase origin <branch>"
+        ],
+        "explanation": "Pulls the remote changes and replays your local commits on top of them, avoiding a messy merge commit."
+      }
+    ],
+    "related": [
+      "pull-with-local-changes"
+    ]
+  },
+  {
+    "id": "change-remote-url",
+    "title": "Change the Remote URL",
+    "category": "remote",
+    "tags": [
+      "change",
+      "remote",
+      "url",
+      "origin",
+      "set-url"
+    ],
+    "description": "You need to point your local repository to a different remote URL (e.g. moved from GitHub to GitLab).",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git remote set-url origin <new-url>"
+        ],
+        "explanation": "Changes the URL for the remote named 'origin'."
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": "undo-a-merge",
+    "title": "Undo a Merge",
+    "category": "merge",
+    "tags": [
+      "undo",
+      "merge",
+      "revert"
+    ],
+    "description": "You completed a merge but realize it was a mistake and want to undo it.",
+    "danger": "caution",
+    "steps": [
+      {
+        "condition": "You haven't pushed yet",
+        "commands": [
+          "git reset --hard HEAD~1"
+        ],
+        "explanation": "Assuming the merge was your very last commit, this will remove the merge commit and restore your branch to how it was before."
+      },
+      {
+        "condition": "You already pushed to a shared branch",
+        "commands": [
+          "git revert -m 1 <merge-commit-hash>"
+        ],
+        "explanation": "Reverts the merge commit safely. The '-m 1' tells Git to keep the main branch's history and revert the incoming branch's changes."
+      }
+    ],
+    "related": [
+      "undo-last-commit",
+      "abort-merge-in-progress"
+    ]
+  },
+  {
+    "id": "abort-merge-in-progress",
+    "title": "Abort a Merge in Progress",
+    "category": "merge",
+    "tags": [
+      "abort",
+      "merge",
+      "stop",
+      "cancel",
+      "conflict"
+    ],
+    "description": "You are in the middle of a merge (perhaps with conflicts) and just want to give up and go back to how things were.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git merge --abort"
+        ],
+        "explanation": "Stops the merge and restores your files to their state before you ran 'git merge'."
+      }
+    ],
+    "related": [
+      "resolve-merge-conflict"
+    ]
+  },
+  {
+    "id": "resolve-merge-conflict",
+    "title": "Resolve a Merge Conflict",
+    "category": "merge",
+    "tags": [
+      "resolve",
+      "merge",
+      "conflict",
+      "fix"
+    ],
+    "description": "Git stopped a merge because of conflicts and you need to fix them.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git status",
+          "# Edit the conflicted files in your editor",
+          "git add <resolved-file>",
+          "git commit"
+        ],
+        "explanation": "Check git status to see which files are conflicted. Open them, look for the <<< === >>> markers, choose the correct code, add the files, and commit."
+      }
+    ],
+    "related": [
+      "abort-merge-in-progress"
+    ]
+  },
+  {
+    "id": "abort-a-rebase",
+    "title": "Abort a Rebase",
+    "category": "rebase",
+    "tags": [
+      "abort",
+      "rebase",
+      "stop",
+      "cancel"
+    ],
+    "description": "You started a rebase, got overwhelmed by conflicts, and want to cancel it.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rebase --abort"
+        ],
+        "explanation": "Cancels the rebase entirely and puts your branch back exactly how it was."
+      }
+    ],
+    "related": [
+      "undo-a-rebase"
+    ]
+  },
+  {
+    "id": "undo-a-rebase",
+    "title": "Undo a Rebase",
+    "category": "rebase",
+    "tags": [
+      "undo",
+      "rebase",
+      "mistake",
+      "reflog"
+    ],
+    "description": "You finished a rebase, but it messed things up and you want to put your branch back to how it was before you rebased.",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git reflog",
+          "git reset --hard HEAD@{n}"
+        ],
+        "explanation": "Look at the reflog to find the state of HEAD right before the rebase started. Then reset hard to that point."
+      }
+    ],
+    "related": [
+      "abort-a-rebase"
+    ]
+  },
+  {
+    "id": "unstage-a-file",
+    "title": "Unstage a File (Keep Changes)",
+    "category": "history",
+    "tags": [
+      "unstage",
+      "remove",
+      "add",
+      "reset",
+      "file"
+    ],
+    "description": "You ran 'git add' on a file by accident and want to remove it from the staging area.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git restore --staged <file>"
+        ],
+        "explanation": "Removes the file from the staging area. Your actual modifications to the file are kept perfectly safe."
+      }
+    ],
+    "related": [
+      "discard-changes-to-file"
+    ]
+  },
+  {
+    "id": "discard-changes-to-file",
+    "title": "Discard Changes to a File",
+    "category": "history",
+    "tags": [
+      "discard",
+      "changes",
+      "file",
+      "reset",
+      "revert"
+    ],
+    "description": "You made changes to a file but want to throw them away and go back to the last committed version.",
+    "danger": "destructive",
+    "steps": [
+      {
+        "commands": [
+          "git restore <file>"
+        ],
+        "explanation": "Overwrites the file with the version from your last commit.",
+        "warning": "This permanently deletes your uncommitted changes to this file."
+      }
+    ],
+    "related": [
+      "unstage-a-file"
+    ]
+  },
+  {
+    "id": "recover-deleted-file",
+    "title": "Recover a Deleted File",
+    "category": "history",
+    "tags": [
+      "recover",
+      "deleted",
+      "file",
+      "restore"
+    ],
+    "description": "You deleted a file and realized you still need it.",
+    "danger": "safe",
+    "steps": [
+      {
+        "condition": "You haven't committed the deletion yet",
+        "commands": [
+          "git restore <file>"
+        ],
+        "explanation": "Brings the file back from your last commit."
+      },
+      {
+        "condition": "You already committed the deletion",
+        "commands": [
+          "git restore --source=HEAD~1 <file>"
+        ],
+        "explanation": "Brings the file back from the commit before your current one."
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": "remove-file-history",
+    "title": "Remove a File from History Entirely",
+    "category": "history",
+    "tags": [
+      "remove",
+      "delete",
+      "file",
+      "history",
+      "filter-repo"
+    ],
+    "description": "You committed a large file or sensitive data a long time ago and need to eradicate it completely from all past commits.",
+    "danger": "destructive",
+    "steps": [
+      {
+        "commands": [
+          "git filter-repo --invert-paths --path <file>"
+        ],
+        "explanation": "Uses the git-filter-repo tool to scrub the file from all commits.",
+        "warning": "This rewrites history for your entire repository. Other developers will need to re-clone."
+      }
+    ],
+    "related": [
+      "committed-sensitive-data"
+    ]
+  },
+  {
+    "id": "find-when-bug-introduced",
+    "title": "Find When a Bug Was Introduced",
+    "category": "history",
+    "tags": [
+      "find",
+      "bug",
+      "bisect",
+      "history",
+      "search"
+    ],
+    "description": "Something is broken, and you need to find exactly which past commit introduced the bug.",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git bisect start",
+          "git bisect bad",
+          "git bisect good <commit-hash-that-worked>",
+          "# Git checks out a middle commit. Test your app.",
+          "# Run 'git bisect good' or 'git bisect bad'",
+          "# Repeat until Git finds the exact commit.",
+          "git bisect reset"
+        ],
+        "explanation": "Starts a binary search through your commit history. You tell Git if a commit is good or bad, and it quickly narrows down the culprit."
+      }
+    ],
+    "related": []
+  },
+  {
+    "id": "stash-uncommitted-changes",
+    "title": "Stash Uncommitted Changes",
+    "category": "stash",
+    "tags": [
+      "stash",
+      "save",
+      "uncommitted",
+      "changes",
+      "hide"
+    ],
+    "description": "You have changes you aren't ready to commit, but you need a clean working directory (e.g. to pull or switch branches).",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git stash"
+        ],
+        "explanation": "Saves your uncommitted changes to a temporary shelf and reverts your working directory to match HEAD."
+      }
+    ],
+    "related": [
+      "recover-dropped-stash",
+      "switch-branches-uncommitted"
+    ]
+  },
+  {
+    "id": "recover-dropped-stash",
+    "title": "Recover a Dropped Stash",
+    "category": "stash",
+    "tags": [
+      "recover",
+      "dropped",
+      "stash",
+      "lost",
+      "reflog"
+    ],
+    "description": "You ran 'git stash drop' or 'git stash clear' and realize you needed that work.",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git fsck --no-reflog | awk '/dangling commit/ {print $3}'",
+          "git show <hash>",
+          "git stash apply <hash>"
+        ],
+        "explanation": "Finds all dangling commits (which includes dropped stashes), lets you inspect them to find yours, and then applies it."
+      }
+    ],
+    "related": [
+      "stash-uncommitted-changes"
+    ]
+  },
+  {
+    "id": "amend-commit-message",
+    "title": "I made a typo in my last commit message",
+    "category": "commits",
+    "tags": [
+      "typo",
+      "wrong message",
+      "commit message",
+      "spelling",
+      "bad message"
+    ],
+    "description": "I made a typo in my last commit message",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git commit --amend -m \"Your corrected commit message here\""
+        ],
+        "explanation": "Changes only the commit message of the most recent commit. Safe only if not yet pushed.",
+        "warning": "Do not use on commits that have already been pushed to a shared branch."
+      }
+    ]
+  },
+  {
+    "id": "amend-add-forgotten-file",
+    "title": "I forgot to add a file in my last commit",
+    "category": "commits",
+    "tags": [
+      "forgot file",
+      "missed file",
+      "forgot to add",
+      "amend file"
+    ],
+    "description": "I forgot to add a file in my last commit",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git add forgotten-file.txt && git commit --amend --no-edit"
+        ],
+        "explanation": "Adds the missing file to the last commit without changing the message."
+      }
+    ]
+  },
+  {
+    "id": "restore-deleted-file",
+    "title": "I accidentally deleted a file",
+    "category": "history",
+    "tags": [
+      "deleted file",
+      "accidentally deleted",
+      "lost file",
+      "remove file"
+    ],
+    "description": "I accidentally deleted a file",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git restore -- path/to/deleted-file.txt"
+        ],
+        "explanation": "Restores the file from the last commit (Git 2.23+). For older Git: git checkout -- path/to/file"
+      }
+    ]
+  },
+  {
+    "id": "committed-wrong-branch",
+    "title": "I committed changes to the wrong branch",
+    "category": "branches",
+    "tags": [
+      "wrong branch",
+      "committed to main",
+      "committed to master",
+      "wrong branch commit"
+    ],
+    "description": "I committed changes to the wrong branch",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git checkout correct-branch && git cherry-pick <commit-hash>"
+        ],
+        "explanation": "Copies the commit to the right branch. Then go back and reset the wrong branch if needed: git reset --hard HEAD~1",
+        "warning": "Be very careful when resetting shared branches."
+      }
+    ]
+  },
+  {
+    "id": "unstage-files",
+    "title": "I staged the wrong files by mistake",
+    "category": "commits",
+    "tags": [
+      "unstage",
+      "staged wrong",
+      "git add wrong",
+      "remove from stage"
+    ],
+    "description": "I staged the wrong files by mistake",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git restore --staged path/to/file.txt"
+        ],
+        "explanation": "Unstages the file but keeps changes in working directory (Git 2.23+). Older: git reset HEAD path/to/file"
+      }
+    ]
+  },
+  {
+    "id": "undo-last-commit-soft",
+    "title": "Undo last commit but keep my changes",
+    "category": "commits",
+    "tags": [
+      "undo commit",
+      "uncommit",
+      "soft reset",
+      "keep changes"
+    ],
+    "description": "Undo last commit but keep my changes",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reset --soft HEAD~1"
+        ],
+        "explanation": "Removes the commit but leaves all changes staged and ready to recommit."
+      }
+    ]
+  },
+  {
+    "id": "undo-last-commit-hard",
+    "title": "Completely undo last commit and discard changes",
+    "category": "commits",
+    "tags": [
+      "hard reset",
+      "discard commit",
+      "remove commit and changes"
+    ],
+    "description": "Completely undo last commit and discard changes",
+    "danger": "destructive",
+    "steps": [
+      {
+        "commands": [
+          "git reset --hard HEAD~1"
+        ],
+        "explanation": "Deletes the commit and all changes made in it.",
+        "warning": "This permanently loses uncommitted changes! Use carefully."
+      }
+    ]
+  },
+  {
+    "id": "detached-head",
+    "title": "I'm in detached HEAD state",
+    "category": "history",
+    "tags": [
+      "detached head",
+      "detached",
+      "head detached"
+    ],
+    "description": "I'm in detached HEAD state",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git checkout -b temporary-branch-name"
+        ],
+        "explanation": "Creates a new branch from your current position so you can continue working normally."
+      }
+    ]
+  },
+  {
+    "id": "merge-conflicts",
+    "title": "I have merge conflicts after pulling",
+    "category": "merge",
+    "tags": [
+      "merge conflict",
+      "conflicts",
+      "pull conflict"
+    ],
+    "description": "I have merge conflicts after pulling",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "Edit the conflicted files (look for ======= markers), then: git add <file> && git commit"
+        ],
+        "explanation": "Manually resolve conflicts in the files, stage them, and complete the merge."
+      }
+    ]
+  },
+  {
+    "id": "remove-sensitive-data",
+    "title": "I committed and pushed a secret or API key",
+    "category": "remote",
+    "tags": [
+      "secret",
+      "password",
+      "api key",
+      "sensitive data",
+      "leaked"
+    ],
+    "description": "I committed and pushed a secret or API key",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "Use git filter-repo or BFG Repo-Cleaner to remove it, then force push."
+        ],
+        "explanation": "Immediately change the leaked secret on the service side too!",
+        "warning": "Force pushing rewrites history \u2013 coordinate with your team."
+      }
+    ]
+  },
+  {
+    "id": "rename-local-branch",
+    "title": "I want to rename my current local branch",
+    "category": "branches",
+    "tags": [
+      "rename branch",
+      "change branch name"
+    ],
+    "description": "I want to rename my current local branch",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git branch -m new-branch-name"
+        ],
+        "explanation": "Renames the currently checked-out branch."
+      }
+    ]
+  },
+  {
+    "id": "discard-all-changes",
+    "title": "Discard all my uncommitted changes",
+    "category": "commits",
+    "tags": [
+      "discard changes",
+      "reset everything",
+      "throw away changes"
+    ],
+    "description": "Discard all my uncommitted changes",
+    "danger": "destructive",
+    "steps": [
+      {
+        "commands": [
+          "git reset --hard && git clean -fd"
+        ],
+        "explanation": "Resets working directory and removes untracked files.",
+        "warning": "This deletes everything not committed \u2013 no undo!"
+      }
+    ]
+  },
+  {
+    "id": "reflog-recovery",
+    "title": "I messed up a rebase or merge and want to go back",
+    "category": "rebase",
+    "tags": [
+      "bad rebase",
+      "bad merge",
+      "messed up",
+      "reflog"
+    ],
+    "description": "I messed up a rebase or merge and want to go back",
+    "danger": "destructive",
+    "steps": [
+      {
+        "commands": [
+          "git reflog && git reset --hard HEAD@{n}"
+        ],
+        "explanation": "Reflog shows your recent Git actions. Find the good state and reset to it.",
+        "warning": "This discards changes completely."
+      }
+    ]
+  },
+  {
+    "id": "committed-to-main-should-be-new-branch",
+    "title": "I made commits directly on main that should be on a new feature branch",
+    "category": "branches",
+    "tags": [
+      "commits on main",
+      "should be branch",
+      "working on main"
+    ],
+    "description": "I made commits directly on main that should be on a new feature branch",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git checkout -b feature-branch && git checkout main && git reset --hard origin/main"
+        ],
+        "explanation": "Moves your commits to a new branch and resets main to the remote state.",
+        "warning": "Only do this if main has not been pushed with your changes."
+      }
+    ]
+  },
+  {
+    "id": "large-files-pushed",
+    "title": "I accidentally committed and pushed large files (videos, binaries, etc.)",
+    "category": "remote",
+    "tags": [
+      "large file",
+      "big file",
+      "pushed large",
+      "bloated repo"
+    ],
+    "description": "I accidentally committed and pushed large files (videos, binaries, etc.)",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git filter-repo --path-glob '*.mp4' --invert-paths && git push --force"
+        ],
+        "explanation": "Removes large files from history. Use BFG Repo-Cleaner as an alternative for simpler cases.",
+        "warning": "Force pushing rewrites history \u2013 inform your team first and change any affected links."
+      }
+    ]
+  },
+  {
+    "id": "forgot-gitignore",
+    "title": "I forgot to add .gitignore and committed build files / node_modules / .env",
+    "category": "commits",
+    "tags": [
+      "forgot gitignore",
+      "committed node_modules",
+      "env file",
+      "build files"
+    ],
+    "description": "I forgot to add .gitignore and committed build files / node_modules / .env",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "Add patterns to .gitignore, then: git rm -r --cached node_modules && git commit -m \"Remove ignored files\""
+        ],
+        "explanation": "Stops tracking the files while keeping them locally."
+      }
+    ]
+  },
+  {
+    "id": "pushed-to-wrong-remote-branch",
+    "title": "I pushed my changes to the wrong remote branch",
+    "category": "branches",
+    "tags": [
+      "pushed wrong branch",
+      "wrong remote",
+      "pushed to main by mistake"
+    ],
+    "description": "I pushed my changes to the wrong remote branch",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git push origin --delete wrong-branch-name && git push origin correct-branch"
+        ],
+        "explanation": "Delete the wrong remote branch (if safe) and push to the correct one. Use git push --force-with-lease for safety on updated branches."
+      }
+    ]
+  },
+  {
+    "id": "bad-rebase-abort",
+    "title": "My rebase went wrong and I want to cancel it",
+    "category": "rebase",
+    "tags": [
+      "bad rebase",
+      "rebase failed",
+      "abort rebase"
+    ],
+    "description": "My rebase went wrong and I want to cancel it",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rebase --abort"
+        ],
+        "explanation": "Returns your branch to the state before the rebase started."
+      }
+    ]
+  },
+  {
+    "id": "force-push-after-rebase",
+    "title": "I rebased my branch and now push is rejected",
+    "category": "rebase",
+    "tags": [
+      "rebase push rejected",
+      "non-fast-forward",
+      "force push"
+    ],
+    "description": "I rebased my branch and now push is rejected",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git push origin branch-name --force-with-lease"
+        ],
+        "explanation": "Safely overwrites the remote branch after rebase (safer than plain --force).",
+        "warning": "Never force push to shared branches like main without team coordination."
+      }
+    ]
+  },
+  {
+    "id": "committed-irrelevant-changes",
+    "title": "I committed irrelevant or temporary changes (like debug logs)",
+    "category": "commits",
+    "tags": [
+      "irrelevant changes",
+      "debug code",
+      "temporary commit"
+    ],
+    "description": "I committed irrelevant or temporary changes (like debug logs)",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reset --soft HEAD~1 && git restore --staged <unwanted-file>"
+        ],
+        "explanation": "Undo the commit, then selectively stage only the good changes."
+      }
+    ]
+  },
+  {
+    "id": "lost-commits-after-reset",
+    "title": "I did a hard reset and lost my commits",
+    "category": "commits",
+    "tags": [
+      "lost commits",
+      "hard reset",
+      "recover after reset"
+    ],
+    "description": "I did a hard reset and lost my commits",
+    "danger": "destructive",
+    "steps": [
+      {
+        "commands": [
+          "git reflog && git reset --hard HEAD@{n}"
+        ],
+        "explanation": "Reflog shows your recent actions. Find the commit before the bad reset and restore it.",
+        "warning": "This discards changes completely."
+      }
+    ]
+  },
+  {
+    "id": "pull-merge-conflicts",
+    "title": "git pull created unwanted merge commits or conflicts",
+    "category": "merge",
+    "tags": [
+      "pull merge",
+      "merge commits",
+      "too many merges"
+    ],
+    "description": "git pull created unwanted merge commits or conflicts",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git pull --rebase origin main"
+        ],
+        "explanation": "Next time, use --rebase to keep a linear history instead of merge commits."
+      }
+    ]
+  },
+  {
+    "id": "stuck-in-merge-state",
+    "title": "I'm stuck in the middle of a merge",
+    "category": "merge",
+    "tags": [
+      "stuck merge",
+      "merge in progress"
+    ],
+    "description": "I'm stuck in the middle of a merge",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git merge --abort"
+        ],
+        "explanation": "Cancels the merge and returns to the previous state."
+      }
+    ]
+  },
+  {
+    "id": "remote-origin-already-exists",
+    "title": "fatal: remote origin already exists (when adding remote)",
+    "category": "remote",
+    "tags": [
+      "remote already exists",
+      "origin already",
+      "add remote error"
+    ],
+    "description": "fatal: remote origin already exists (when adding remote)",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git remote set-url origin https://new-url.git"
+        ],
+        "explanation": "Updates the existing remote URL instead of trying to add a duplicate."
+      }
+    ]
+  },
+  {
+    "id": "committed-to-main-should-branch",
+    "title": "I made several commits directly on main that should be on a feature branch",
+    "category": "branches",
+    "tags": [
+      "commits on main",
+      "working on main",
+      "should be feature"
+    ],
+    "description": "I made several commits directly on main that should be on a feature branch",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git checkout -b feature-branch && git checkout main && git reset --hard origin/main"
+        ],
+        "explanation": "Moves your work to a new branch and resets main to the clean remote state.",
+        "warning": "Only safe if you haven't pushed the commits to main yet."
+      }
+    ]
+  },
+  {
+    "id": "recover-deleted-tag",
+    "title": "I accidentally deleted a Git tag",
+    "category": "history",
+    "tags": [
+      "deleted tag",
+      "lost tag"
+    ],
+    "description": "I accidentally deleted a Git tag",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reflog && git tag tag-name <commit-hash>"
+        ],
+        "explanation": "Recreate the tag using the commit hash from reflog."
+      }
+    ]
+  },
+  {
+    "id": "unstash-specific",
+    "title": "I have multiple stashes and want to apply only one",
+    "category": "stash",
+    "tags": [
+      "multiple stashes",
+      "apply specific stash"
+    ],
+    "description": "I have multiple stashes and want to apply only one",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git stash list && git stash apply stash@{1}"
+        ],
+        "explanation": "List stashes first, then apply the desired one by index."
+      }
+    ]
+  },
+  {
+    "id": "push-rejected-non-fast-forward",
+    "title": "Push rejected: Updates were rejected because the remote contains work you do not have locally",
+    "category": "remote",
+    "tags": [
+      "push rejected",
+      "non-fast-forward",
+      "remote has work"
+    ],
+    "description": "Push rejected: Updates were rejected because the remote contains work you do not have locally",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git pull --rebase && git push"
+        ],
+        "explanation": "Fetch remote changes, rebase your work on top, then push cleanly."
+      }
+    ]
+  },
+  {
+    "id": "bad-commit-message-history",
+    "title": "My commit history has many poor or unclear messages",
+    "category": "commits",
+    "tags": [
+      "bad commit messages",
+      "rewrite history",
+      "squash commits"
+    ],
+    "description": "My commit history has many poor or unclear messages",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rebase -i HEAD~n (then change 'pick' to 'reword' or 'squash')"
+        ],
+        "explanation": "Interactive rebase lets you edit, combine, or rewrite recent commits."
+      }
+    ]
+  },
+  {
+    "id": "accidental-git-clean",
+    "title": "I ran git clean and deleted untracked files I wanted to keep",
+    "category": "history",
+    "tags": [
+      "git clean",
+      "deleted untracked",
+      "lost files"
+    ],
+    "description": "I ran git clean and deleted untracked files I wanted to keep",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "Check your recycle bin / backup. Prevention: always use git clean -n first to preview."
+        ],
+        "explanation": "git clean is destructive \u2013 always dry-run with -n or -d first."
+      }
+    ]
+  },
+  {
+    "id": "detached-head-after-checkout",
+    "title": "I checked out a commit directly and now I'm in detached HEAD",
+    "category": "commits",
+    "tags": [
+      "detached after checkout",
+      "checkout commit"
+    ],
+    "description": "I checked out a commit directly and now I'm in detached HEAD",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git checkout -b recovery-branch"
+        ],
+        "explanation": "Create a new branch to save your current work safely."
+      }
+    ]
+  },
+  {
+    "id": "revert-pushed-commit",
+    "title": "I want to undo a commit that has already been pushed",
+    "category": "remote",
+    "tags": [
+      "revert pushed",
+      "undo pushed commit"
+    ],
+    "description": "I want to undo a commit that has already been pushed",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git revert <commit-hash>"
+        ],
+        "explanation": "Creates a new commit that undoes the changes without rewriting history (safe for shared branches)."
+      }
+    ]
+  },
+  {
+    "id": "submodule-issues",
+    "title": "My Git submodule is not updating or shows wrong version",
+    "category": "history",
+    "tags": [
+      "submodule",
+      "submodule not updating"
+    ],
+    "description": "My Git submodule is not updating or shows wrong version",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git submodule update --init --recursive && git submodule foreach git pull"
+        ],
+        "explanation": "Initialize and update submodules to the correct commit."
+      }
+    ]
+  },
+  {
+    "id": "reflog-time-machine",
+    "title": "I don't remember what I did but my branch is messed up",
+    "category": "branches",
+    "tags": [
+      "lost track",
+      "what did I do",
+      "git time machine"
+    ],
+    "description": "I don't remember what I did but my branch is messed up",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reflog"
+        ],
+        "explanation": "Reflog is your Git history of actions \u2013 use it to find any previous state and reset or checkout from there."
+      }
+    ]
+  },
+  {
+    "id": "push-large-file-error",
+    "title": "GitHub rejects my push because of a large file (>100MB)",
+    "category": "remote",
+    "tags": [
+      "large file",
+      "file too big",
+      "push rejected large",
+      "100mb"
+    ],
+    "description": "GitHub rejects my push because of a large file (>100MB)",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git filter-repo --path-glob 'path/to/large-file' --invert-paths && git push --force"
+        ],
+        "explanation": "Remove the large file from history using git filter-repo (or BFG Repo-Cleaner). Add it to .gitignore afterwards.",
+        "warning": "Force pushing rewrites history \u2013 coordinate with your team."
+      }
+    ]
+  },
+  {
+    "id": "gitignore-not-working",
+    "title": "Files are still being tracked even after adding to .gitignore",
+    "category": "history",
+    "tags": [
+      "gitignore not working",
+      "still tracked",
+      "ignore not applying"
+    ],
+    "description": "Files are still being tracked even after adding to .gitignore",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rm -r --cached path/to/folder && git commit -m \"Stop tracking ignored files\""
+        ],
+        "explanation": "Removes files from Git index while keeping them on your disk."
+      }
+    ]
+  },
+  {
+    "id": "committed-node-modules",
+    "title": "I accidentally committed node_modules or vendor folder",
+    "category": "commits",
+    "tags": [
+      "node_modules",
+      "vendor",
+      "committed dependencies"
+    ],
+    "description": "I accidentally committed node_modules or vendor folder",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rm -r --cached node_modules && git commit -m \"Remove node_modules from tracking\""
+        ],
+        "explanation": "Add node_modules/ to .gitignore first, then untrack it."
+      }
+    ]
+  },
+  {
+    "id": "bad-commit-on-main",
+    "title": "I made commits directly on main/main that should be on a feature branch",
+    "category": "branches",
+    "tags": [
+      "commits on main",
+      "working on main",
+      "should be feature branch"
+    ],
+    "description": "I made commits directly on main/main that should be on a feature branch",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git checkout -b feature-branch && git checkout main && git reset --hard origin/main"
+        ],
+        "explanation": "Moves your commits to a new branch and resets main to the remote state.",
+        "warning": "Only safe if you haven't pushed yet."
+      }
+    ]
+  },
+  {
+    "id": "rebase-public-branch",
+    "title": "I rebased a shared/public branch and now everything is broken",
+    "category": "rebase",
+    "tags": [
+      "rebase main",
+      "rebase shared",
+      "rebase public"
+    ],
+    "description": "I rebased a shared/public branch and now everything is broken",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git reset --hard origin/branch-name (or use reflog to recover)"
+        ],
+        "explanation": "Avoid rebasing shared branches. Use merge instead for public branches.",
+        "warning": "Rebasing public branches causes problems for teammates."
+      }
+    ]
+  },
+  {
+    "id": "force-push-warning",
+    "title": "I used git push --force and overwrote my teammate's work",
+    "category": "remote",
+    "tags": [
+      "force push",
+      "overwrote team",
+      "lost teammate commits"
+    ],
+    "description": "I used git push --force and overwrote my teammate's work",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git reflog && git reset --hard <good-commit-hash> && git push --force-with-lease"
+        ],
+        "explanation": "Use --force-with-lease instead of --force for safer overwrites.",
+        "warning": "Always communicate before force pushing shared branches."
+      }
+    ]
+  },
+  {
+    "id": "stash-pop-conflict",
+    "title": "git stash pop caused conflicts",
+    "category": "merge",
+    "tags": [
+      "stash pop conflict",
+      "stash conflict"
+    ],
+    "description": "git stash pop caused conflicts",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "Resolve conflicts manually, then git add <file> && git stash drop"
+        ],
+        "explanation": "Stash conflicts are resolved like merge conflicts."
+      }
+    ]
+  },
+  {
+    "id": "multiple-stashes",
+    "title": "I have many stashes and forgot which is which",
+    "category": "stash",
+    "tags": [
+      "many stashes",
+      "list stashes",
+      "forgot stash"
+    ],
+    "description": "I have many stashes and forgot which is which",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git stash list"
+        ],
+        "explanation": "Shows all stashes with messages and indices (stash@{0}, stash@{1}, etc.)."
+      }
+    ]
+  },
+  {
+    "id": "apply-specific-stash",
+    "title": "Apply only one specific stash without dropping others",
+    "category": "stash",
+    "tags": [
+      "apply stash",
+      "specific stash"
+    ],
+    "description": "Apply only one specific stash without dropping others",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git stash apply stash@{2}"
+        ],
+        "explanation": "Apply without removing from stash list. Use git stash pop to apply and drop."
+      }
+    ]
+  },
+  {
+    "id": "unstaged-changes-lost",
+    "title": "I lost uncommitted changes after switching branches",
+    "category": "branches",
+    "tags": [
+      "lost changes",
+      "no stash",
+      "changes disappeared"
+    ],
+    "description": "I lost uncommitted changes after switching branches",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reflog && git checkout <commit> -- path/to/file"
+        ],
+        "explanation": "Reflog can help recover recent changes even if not stashed."
+      }
+    ]
+  },
+  {
+    "id": "commit-irrelevant-debug",
+    "title": "I committed debug prints or temporary code",
+    "category": "commits",
+    "tags": [
+      "debug code",
+      "temporary changes",
+      "irrelevant commit"
+    ],
+    "description": "I committed debug prints or temporary code",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reset --soft HEAD~1 && git restore --staged unwanted-file"
+        ],
+        "explanation": "Undo commit, unstage bad files, then recommit only good changes."
+      }
+    ]
+  },
+  {
+    "id": "empty-commit",
+    "title": "I made an empty commit by mistake",
+    "category": "commits",
+    "tags": [
+      "empty commit",
+      "no changes commit"
+    ],
+    "description": "I made an empty commit by mistake",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reset --soft HEAD~1"
+        ],
+        "explanation": "Removes the empty commit while keeping any staged changes."
+      }
+    ]
+  },
+  {
+    "id": "rename-branch-remote",
+    "title": "I renamed a local branch but the remote still has the old name",
+    "category": "branches",
+    "tags": [
+      "rename remote branch",
+      "old branch name remote"
+    ],
+    "description": "I renamed a local branch but the remote still has the old name",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git push origin --delete old-branch && git push origin new-branch"
+        ],
+        "explanation": "Delete old remote branch and push the new one."
+      }
+    ]
+  },
+  {
+    "id": "submodule-not-updating",
+    "title": "Git submodule shows wrong version or not updating",
+    "category": "history",
+    "tags": [
+      "submodule update",
+      "submodule wrong version"
+    ],
+    "description": "Git submodule shows wrong version or not updating",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git submodule update --init --recursive"
+        ],
+        "explanation": "Initialize and update submodules to the recorded commit."
+      }
+    ]
+  },
+  {
+    "id": "submodule-path-changed",
+    "title": "I moved or renamed a submodule and it's broken",
+    "category": "history",
+    "tags": [
+      "submodule moved",
+      "submodule rename"
+    ],
+    "description": "I moved or renamed a submodule and it's broken",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git submodule deinit -f path && git rm -f path && git submodule add <url> new/path"
+        ],
+        "explanation": "Properly remove and re-add the submodule at the new location."
+      }
+    ]
+  },
+  {
+    "id": "pull-without-fetch",
+    "title": "git pull is taking forever or failing",
+    "category": "remote",
+    "tags": [
+      "slow pull",
+      "pull failing"
+    ],
+    "description": "git pull is taking forever or failing",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git fetch --all --prune && git pull --rebase"
+        ],
+        "explanation": "Fetch first, then rebase for cleaner history."
+      }
+    ]
+  },
+  {
+    "id": "detached-head-checkout-tag",
+    "title": "I checked out a tag and now I'm in detached HEAD",
+    "category": "history",
+    "tags": [
+      "detached tag",
+      "checkout tag detached"
+    ],
+    "description": "I checked out a tag and now I'm in detached HEAD",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git checkout -b branch-from-tag"
+        ],
+        "explanation": "Create a branch to make changes safely from the tag."
+      }
+    ]
+  },
+  {
+    "id": "revert-specific-commit",
+    "title": "Undo a specific commit that was already pushed",
+    "category": "remote",
+    "tags": [
+      "revert commit",
+      "undo pushed commit"
+    ],
+    "description": "Undo a specific commit that was already pushed",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git revert <commit-hash>"
+        ],
+        "explanation": "Creates a new commit that reverses the changes (safe for shared history)."
+      }
+    ]
+  },
+  {
+    "id": "squash-last-n-commits",
+    "title": "I want to combine my last N commits into one",
+    "category": "commits",
+    "tags": [
+      "squash commits",
+      "combine commits"
+    ],
+    "description": "I want to combine my last N commits into one",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rebase -i HEAD~N (change 'pick' to 'squash' or 'fixup')"
+        ],
+        "explanation": "Interactive rebase for cleaning up recent commit history."
+      }
+    ]
+  },
+  {
+    "id": "reword-commit-message",
+    "title": "Change the message of an older unpushed commit",
+    "category": "remote",
+    "tags": [
+      "reword commit",
+      "edit old message"
+    ],
+    "description": "Change the message of an older unpushed commit",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rebase -i HEAD~N (change 'pick' to 'reword')"
+        ],
+        "explanation": "Allows editing commit messages during interactive rebase."
+      }
+    ]
+  },
+  {
+    "id": "git-clean-accident",
+    "title": "I ran git clean and deleted important untracked files",
+    "category": "history",
+    "tags": [
+      "git clean",
+      "deleted untracked files"
+    ],
+    "description": "I ran git clean and deleted important untracked files",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "Check recycle bin / backups. Always run git clean -n first to preview."
+        ],
+        "explanation": "git clean -fd is destructive \u2013 use dry-run (-n) option."
+      }
+    ]
+  },
+  {
+    "id": "remote-url-wrong",
+    "title": "My remote URL is wrong or points to the wrong repository",
+    "category": "remote",
+    "tags": [
+      "wrong remote url",
+      "remote origin wrong"
+    ],
+    "description": "My remote URL is wrong or points to the wrong repository",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git remote set-url origin https://correct-url.git"
+        ],
+        "explanation": "Updates the remote without removing and re-adding."
+      }
+    ]
+  },
+  {
+    "id": "fetch-prune-old-branches",
+    "title": "Remote branches I deleted locally still show up",
+    "category": "branches",
+    "tags": [
+      "old remote branches",
+      "prune branches"
+    ],
+    "description": "Remote branches I deleted locally still show up",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git fetch --prune"
+        ],
+        "explanation": "Removes references to deleted remote branches."
+      }
+    ]
+  },
+  {
+    "id": "merge-vs-rebase",
+    "title": "My branch history is full of unnecessary merge commits",
+    "category": "merge",
+    "tags": [
+      "merge commits",
+      "messy history"
+    ],
+    "description": "My branch history is full of unnecessary merge commits",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "Next time use: git pull --rebase"
+        ],
+        "explanation": "Rebase keeps history linear instead of creating merge commits."
+      }
+    ]
+  },
+  {
+    "id": "cherry-pick-conflict",
+    "title": "Cherry-pick created conflicts",
+    "category": "merge",
+    "tags": [
+      "cherry pick conflict"
+    ],
+    "description": "Cherry-pick created conflicts",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "Resolve conflicts, then git cherry-pick --continue"
+        ],
+        "explanation": "Continue or abort with git cherry-pick --abort if needed."
+      }
+    ]
+  },
+  {
+    "id": "lost-branch-after-delete",
+    "title": "I deleted a branch locally and remotely by mistake",
+    "category": "branches",
+    "tags": [
+      "deleted branch remote",
+      "lost remote branch"
+    ],
+    "description": "I deleted a branch locally and remotely by mistake",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reflog && git branch branch-name <hash> && git push origin branch-name"
+        ],
+        "explanation": "Recover using reflog then push again."
+      }
+    ]
+  },
+  {
+    "id": "git-status-too-slow",
+    "title": "git status is very slow on a large repository",
+    "category": "history",
+    "tags": [
+      "slow git status",
+      "git slow"
+    ],
+    "description": "git status is very slow on a large repository",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git gc --aggressive && git prune"
+        ],
+        "explanation": "Clean up and optimize the repository."
+      }
+    ]
+  },
+  {
+    "id": "committed-env-file",
+    "title": "I committed .env or secrets file",
+    "category": "commits",
+    "tags": [
+      ".env",
+      "secrets committed",
+      "environment file"
+    ],
+    "description": "I committed .env or secrets file",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git rm --cached .env && git commit -m \"Remove .env from tracking\" && add to .gitignore"
+        ],
+        "explanation": "Immediately rotate any exposed secrets.",
+        "warning": "Change passwords/keys after removal."
+      }
+    ]
+  },
+  {
+    "id": "push-to-fork-wrong",
+    "title": "I pushed to my fork instead of upstream",
+    "category": "remote",
+    "tags": [
+      "pushed to fork",
+      "wrong remote"
+    ],
+    "description": "I pushed to my fork instead of upstream",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git remote add upstream <original-url> && git push upstream branch"
+        ],
+        "explanation": "Set up upstream remote for the original repository."
+      }
+    ]
+  },
+  {
+    "id": "amend-after-push",
+    "title": "I need to amend a commit that was already pushed",
+    "category": "remote",
+    "tags": [
+      "amend pushed",
+      "change pushed commit"
+    ],
+    "description": "I need to amend a commit that was already pushed",
+    "danger": "caution",
+    "steps": [
+      {
+        "commands": [
+          "git commit --amend && git push --force-with-lease"
+        ],
+        "explanation": "Only do this on your own branches.",
+        "warning": "Rewrites history \u2013 inform teammates."
+      }
+    ]
+  },
+  {
+    "id": "git-add-all-mistake",
+    "title": "I did git add . and added everything including junk",
+    "category": "history",
+    "tags": [
+      "git add . mistake",
+      "added too much"
+    ],
+    "description": "I did git add . and added everything including junk",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git restore --staged . && git add specific/good/files"
+        ],
+        "explanation": "Unstage everything, then add only what you want."
+      }
+    ]
+  },
+  {
+    "id": "branch-name-typo",
+    "title": "I created a branch with a typo in the name",
+    "category": "branches",
+    "tags": [
+      "branch name typo",
+      "wrong branch name"
+    ],
+    "description": "I created a branch with a typo in the name",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git branch -m old-name new-correct-name"
+        ],
+        "explanation": "Rename the current branch. For remote: delete and push new."
+      }
+    ]
+  },
+  {
+    "id": "pull-request-merge-conflict",
+    "title": "My PR has conflicts when trying to merge",
+    "category": "merge",
+    "tags": [
+      "pr conflict",
+      "pull request conflict"
+    ],
+    "description": "My PR has conflicts when trying to merge",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git checkout main && git pull && git checkout my-branch && git rebase main"
+        ],
+        "explanation": "Rebase your branch on latest main to resolve conflicts locally."
+      }
+    ]
+  },
+  {
+    "id": "git-lfs-not-installed",
+    "title": "Large files are still stored in Git instead of LFS",
+    "category": "history",
+    "tags": [
+      "git lfs",
+      "large files not lfs"
+    ],
+    "description": "Large files are still stored in Git instead of LFS",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git lfs install && git lfs track \"*.psd\" && git add .gitattributes"
+        ],
+        "explanation": "Set up Git LFS for large binary files."
+      }
+    ]
+  },
+  {
+    "id": "shallow-clone-issue",
+    "title": "I'm on a shallow clone and can't access full history",
+    "category": "history",
+    "tags": [
+      "shallow clone",
+      "unshallow"
+    ],
+    "description": "I'm on a shallow clone and can't access full history",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git fetch --unshallow"
+        ],
+        "explanation": "Convert shallow clone to full clone."
+      }
+    ]
+  },
+  {
+    "id": "bisect-for-bug",
+    "title": "I need to find which commit introduced a bug",
+    "category": "commits",
+    "tags": [
+      "find bug commit",
+      "git bisect"
+    ],
+    "description": "I need to find which commit introduced a bug",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git bisect start && git bisect bad && git bisect good <good-commit>"
+        ],
+        "explanation": "Binary search through history to find the bad commit."
+      }
+    ]
+  },
+  {
+    "id": "tag-already-exists",
+    "title": "git tag fails because tag already exists",
+    "category": "history",
+    "tags": [
+      "tag already exists"
+    ],
+    "description": "git tag fails because tag already exists",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git tag -f new-tag-name"
+        ],
+        "explanation": "Force overwrite existing tag (careful with pushed tags)."
+      }
+    ]
+  },
+  {
+    "id": "recover-after-git-reset-hard",
+    "title": "I did git reset --hard and lost important changes",
+    "category": "history",
+    "tags": [
+      "reset hard lost",
+      "recover after reset"
+    ],
+    "description": "I did git reset --hard and lost important changes",
+    "danger": "destructive",
+    "steps": [
+      {
+        "commands": [
+          "git reflog && git reset --hard HEAD@{1}"
+        ],
+        "explanation": "Reflog acts as a safety net for recent actions.",
+        "warning": "This discards changes completely."
+      }
+    ]
+  },
+  {
+    "id": "commit-message-too-vague",
+    "title": "My commit messages are unclear like \"fix\" or \"update\"",
+    "category": "commits",
+    "tags": [
+      "vague commit",
+      "bad commit message"
+    ],
+    "description": "My commit messages are unclear like \"fix\" or \"update\"",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rebase -i HEAD~N && reword the messages"
+        ],
+        "explanation": "Rewrite recent messages for better history."
+      }
+    ]
+  },
+  {
+    "id": "gitignore-personal",
+    "title": "I want to ignore files only on my machine (not for team)",
+    "category": "history",
+    "tags": [
+      "personal gitignore",
+      "local ignore"
+    ],
+    "description": "I want to ignore files only on my machine (not for team)",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "Create .git/info/exclude or use core.excludesFile"
+        ],
+        "explanation": "Keeps ignores local without committing .gitignore changes."
+      }
+    ]
+  },
+  {
+    "id": "merge-abort",
+    "title": "I'm stuck in a merge state I don't want",
+    "category": "merge",
+    "tags": [
+      "abort merge",
+      "stuck in merge"
+    ],
+    "description": "I'm stuck in a merge state I don't want",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git merge --abort"
+        ],
+        "explanation": "Cancels the merge and returns to pre-merge state."
+      }
+    ]
+  },
+  {
+    "id": "rebase-abort",
+    "title": "My interactive rebase is messed up",
+    "category": "rebase",
+    "tags": [
+      "abort rebase",
+      "rebase stuck"
+    ],
+    "description": "My interactive rebase is messed up",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rebase --abort"
+        ],
+        "explanation": "Returns branch to state before rebase."
+      }
+    ]
+  },
+  {
+    "id": "push-upstream-set",
+    "title": "I always have to type the full git push origin branch-name",
+    "category": "branches",
+    "tags": [
+      "set upstream",
+      "push shortcut"
+    ],
+    "description": "I always have to type the full git push origin branch-name",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git push -u origin branch-name"
+        ],
+        "explanation": "Sets upstream so future pushes are just git push."
+      }
+    ]
+  },
+  {
+    "id": "committed-build-folder",
+    "title": "I committed dist/, build/, or target/ folder",
+    "category": "commits",
+    "tags": [
+      "build folder",
+      "dist committed",
+      "target folder"
+    ],
+    "description": "I committed dist/, build/, or target/ folder",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git rm -r --cached dist && git commit -m \"Remove build artifacts\""
+        ],
+        "explanation": "Add dist/ to .gitignore."
+      }
+    ]
+  },
+  {
+    "id": "reflog-clear",
+    "title": "I want to see even older actions in reflog",
+    "category": "history",
+    "tags": [
+      "reflog old",
+      "reflog expire"
+    ],
+    "description": "I want to see even older actions in reflog",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git reflog show --all"
+        ],
+        "explanation": "Reflog expires after ~90 days by default."
+      }
+    ]
+  },
+  {
+    "id": "git-add-force-ignore",
+    "title": "I want to commit a file that is ignored by .gitignore",
+    "category": "commits",
+    "tags": [
+      "force add ignored",
+      "add despite gitignore"
+    ],
+    "description": "I want to commit a file that is ignored by .gitignore",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git add -f path/to/ignored-file"
+        ],
+        "explanation": "Overrides ignore rules for that specific add."
+      }
+    ]
+  },
+  {
+    "id": "prune-remote-branches",
+    "title": "Too many stale remote branches cluttering my repo",
+    "category": "branches",
+    "tags": [
+      "stale branches",
+      "prune remote"
+    ],
+    "description": "Too many stale remote branches cluttering my repo",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git fetch --prune && git remote prune origin"
+        ],
+        "explanation": "Cleans up deleted remote branches locally."
+      }
+    ]
+  },
+  {
+    "id": "worktree-multiple",
+    "title": "I want to work on two branches at the same time",
+    "category": "branches",
+    "tags": [
+      "multiple branches",
+      "worktree"
+    ],
+    "description": "I want to work on two branches at the same time",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git worktree add ../path-to-worktree branch-name"
+        ],
+        "explanation": "Git worktrees allow multiple checkouts in one repo."
+      }
+    ]
+  },
+  {
+    "id": "signed-commit-missing",
+    "title": "My commits are not showing as verified (GPG signing)",
+    "category": "commits",
+    "tags": [
+      "signed commit",
+      "verified commit"
+    ],
+    "description": "My commits are not showing as verified (GPG signing)",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git config --global commit.gpgsign true && git commit -S"
+        ],
+        "explanation": "Set up GPG signing for commits."
+      }
+    ]
+  },
+  {
+    "id": "blame-specific-line",
+    "title": "Find who last changed a specific line of code",
+    "category": "history",
+    "tags": [
+      "git blame",
+      "who changed line"
+    ],
+    "description": "Find who last changed a specific line of code",
+    "danger": "safe",
+    "steps": [
+      {
+        "commands": [
+          "git blame -L 10,15 path/to/file"
+        ],
+        "explanation": "Shows author and commit for each line (or range)."
+      }
+    ]
+  }
+]
