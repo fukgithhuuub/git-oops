@@ -1,5 +1,7 @@
 // Git Oops AI Chatbox
-import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.0';
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.0';
+
+env.allowLocalModels = false;
 
 // ================== FILL THESE 3 VALUES ==================
 const EMAILJS_PUBLIC_KEY   = 'YOUR_PUBLIC_KEY_HERE';     // ← From EmailJS dashboard
@@ -146,42 +148,21 @@ async function loadModel() {
 
 // --- Semantic Indexing ---
 
-let scenariosData = [];
 let scenarioEmbeddings = [];
 
 async function buildIndex() {
-    if (!extractorPipeline) return;
-
-    // Load scenario data
-    if (window.dataService) {
-        scenariosData = await window.dataService.loadData();
-    } else {
-        console.error("dataService not found. Ensure js/data.js is loaded first.");
-        return;
+    try {
+        const response = await fetch('./data/embeddings.json');
+        if (!response.ok) throw new Error('Failed to fetch embeddings.json');
+        scenarioEmbeddings = await response.json();
+        console.log(`Loaded pre-computed embeddings for ${scenarioEmbeddings.length} scenarios.`);
+    } catch (err) {
+        console.error("Error loading embeddings:", err);
     }
-
-    if (scenariosData.length === 0) return;
-
-    console.log(`Building semantic index for ${scenariosData.length} scenarios...`);
-
-    scenarioEmbeddings = [];
-
-    // Combine relevant text for embeddings
-    for (const scenario of scenariosData) {
-        const textToEmbed = `${scenario.title} ${scenario.tags ? scenario.tags.join(' ') : ''} ${scenario.description}`;
-
-        // Generate embedding
-        const result = await extractorPipeline(textToEmbed, { pooling: 'mean', normalize: true });
-
-        scenarioEmbeddings.push({
-            id: scenario.id,
-            embedding: result.data
-        });
-    }
-    console.log("Semantic index built successfully.");
 }
 
 // --- Search & Match Logic ---
+
 
 // Helper function to compute cosine similarity between two vectors
 function cosineSimilarity(vecA, vecB) {
@@ -221,7 +202,7 @@ async function findBestMatch(queryText) {
 
         // Threshold for a "good" match
         console.log(`Best match score: ${highestScore}`);
-        if (highestScore > 0.6) {
+        if (highestScore > 0.75) {
             return bestMatchId;
         } else {
             return null; // No strong match found
