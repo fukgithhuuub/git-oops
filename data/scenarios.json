@@ -2458,5 +2458,32 @@
         "explanation": "Shows author and commit for each line (or range)."
       }
     ]
+  },
+  {
+    "id": "delete-all-files-branch",
+    "title": "Delete all files of a branch",
+    "category": "history",
+    "tags": [
+      "delete all files",
+      "remove everything",
+      "main branch",
+      "empty branch",
+      "delete files of main branch"
+    ],
+    "description": "I want to delete all files of main branch or any other branch completely.",
+    "danger": "destructive",
+    "steps": [
+      {
+        "commands": [
+          "git rm -rf ."
+        ],
+        "explanation": "Recursively removes all files from the Git index and working tree. Commit after this to make the branch completely empty.",
+        "warning": "This deletes all tracked files in your current working directory. Make sure you are on the right branch!"
+      }
+    ],
+    "related": [
+      "discard-all-changes",
+      "remove-file-history"
+    ]
   }
 ]

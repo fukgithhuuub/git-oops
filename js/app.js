@@ -32,9 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentSearchTerm = '';
 
   // Initialization
-  initialize();
+  await initialize();
 
-  function initialize() {
+  async function initialize() {
     // Check URL params for pre-filling search or category
     const urlParams = new URLSearchParams(window.location.search);
     const queryParam = urlParams.get('q');
@@ -52,11 +52,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     renderResults();
 
+
+    // AI Toggle
+    const aiToggleBtn = document.getElementById('ai-search-toggle');
+    if (aiToggleBtn) {
+      aiToggleBtn.addEventListener('click', () => {
+        if (window.aiSearchReady) {
+          // Already on, could disable but let's keep it simple or show status
+          alert("AI Search is already active!");
+        } else if (window.promptAIConsent) {
+          window.promptAIConsent();
+        }
+      });
+    }
+
+    // Expose a way to re-trigger search from ai-search.js when model loads
+    window.triggerSearchUpdate = () => {
+      renderResults();
+    };
+
     // Event listeners
-    searchInput.addEventListener('input', debounce((e) => {
+    searchInput.addEventListener('input', debounce(async (e) => {
       currentSearchTerm = e.target.value;
       updateURL();
-      renderResults();
+      await renderResults();
     }, 200));
 
     // Keyboard shortcut to focus search (press '/')
@@ -68,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     categoryTiles.forEach(tile => {
-      tile.addEventListener('click', () => {
+      tile.addEventListener('click', async () => {
         const category = tile.dataset.category;
 
         // Toggle category
@@ -80,17 +99,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         updateCategoryUI(currentCategory);
         updateURL();
-        renderResults();
+        await renderResults();
       });
     });
 
-    clearFilterBtn.addEventListener('click', () => {
+    clearFilterBtn.addEventListener('click', async () => {
       currentCategory = null;
       currentSearchTerm = '';
       searchInput.value = '';
       updateCategoryUI(null);
       updateURL();
-      renderResults();
+      await renderResults();
     });
   }
 
@@ -122,13 +141,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.history.replaceState({}, '', url);
   }
 
-  function getFilteredResults() {
+  async
+  async function getFilteredResults() {
     let results = data;
 
     // Apply search filter
     if (currentSearchTerm.trim() !== '') {
-      const fuseResults = fuse.search(currentSearchTerm);
-      results = fuseResults.map(result => result.item);
+      if (window.aiSearchReady && window.semanticSearch) {
+        // AI Semantic Search
+        const semanticMatches = await window.semanticSearch(currentSearchTerm);
+        results = semanticMatches.map(match => dataService.getById(match.id)).filter(item => item !== undefined);
+      } else {
+        // Fallback to Fuse
+        const fuseResults = fuse.search(currentSearchTerm);
+        results = fuseResults.map(result => result.item);
+      }
     }
 
     // Apply category filter
@@ -139,8 +166,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     return results;
   }
 
-  function renderResults() {
-    const results = getFilteredResults();
+
+
+  async function renderResults() {
+    // Show loading state if AI is loading
+    if (window.isAILoading) {
+        resultsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--color-text-muted);">AI model is loading... please wait.</div>';
+        return;
+    }
+
+    const results = await getFilteredResults();
 
     // Update count and clear filter button visibility
     resultsCount.textContent = `Showing ${results.length} scenario${results.length !== 1 ? 's' : ''}`;
@@ -155,18 +190,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (results.length === 0) {
       resultsGrid.innerHTML = '';
       emptyState.classList.remove('hidden');
+
+      // Update empty state text based on search term
+
+      // Update empty state text based on search term
+      const h3 = emptyState.querySelector('h3');
+      const fallbackBtn = emptyState.querySelector('.notify-maintainer-btn');
+
+      if (currentSearchTerm) {
+          h3.textContent = `No solutions found for "${currentSearchTerm}"`;
+
+          if (!fallbackBtn && window.sendEmailFallback) {
+              const btn = document.createElement('button');
+              btn.className = 'notify-maintainer-btn';
+              btn.textContent = 'Notify maintainer to add this scenario';
+              btn.onclick = async () => {
+                  btn.textContent = 'Sending...';
+                  btn.disabled = true;
+                  const success = await window.sendEmailFallback(currentSearchTerm);
+                  if (success) {
+                      btn.textContent = 'Maintainer notified!';
+                      btn.style.backgroundColor = 'var(--color-success)';
+                      btn.style.color = 'var(--color-primary)';
+                  } else {
+                      btn.textContent = 'Failed to send notify.';
+                      btn.disabled = false;
+                  }
+              };
+              emptyState.appendChild(btn);
+          } else if (fallbackBtn) {
+              fallbackBtn.style.display = 'inline-block';
+              fallbackBtn.textContent = 'Notify maintainer to add this scenario';
+              fallbackBtn.disabled = false;
+              fallbackBtn.style.backgroundColor = '';
+              fallbackBtn.style.color = '';
+          }
+      } else {
+          h3.textContent = 'No solutions found';
+          if (fallbackBtn) fallbackBtn.style.display = 'none';
+      }
+
     } else {
       emptyState.classList.add('hidden');
       resultsGrid.innerHTML = results.map(createScenarioCard).join('');
     }
   }
 
+
   function createScenarioCard(scenario) {
     const dangerClass = `badge-danger-${scenario.danger}`;
     const dangerLabel = getDangerLabel(scenario.danger);
 
     return `
-      <a href="scenario.html?id=${scenario.id}" class="scenario-card">
+      <a href="scenario.html?id=${scenario.id}" id="scenario-${scenario.id}" class="scenario-card">
         <div class="card-header">
           <h3 class="card-title">${escapeHTML(scenario.title)}</h3>
           <div class="card-badges">
